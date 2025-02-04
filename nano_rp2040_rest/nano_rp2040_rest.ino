@@ -1,6 +1,7 @@
 #include "arduino_secrets.h"
 #include <Arduino_LSM6DSOX.h>
 #include <ArduinoJson.h>
+#include <SPI.h>
 #include <WiFiNINA.h>
 
 char ssid[] = SECRET_SSID;     // your network SSID (name)
@@ -13,6 +14,10 @@ WiFiServer server(port);
 
 void setup()
 {
+  pinMode(LEDR, OUTPUT);
+  pinMode(LEDG, OUTPUT);
+  pinMode(LEDB, OUTPUT);
+
   Serial.begin(9600); // initialize serial communication at 9600 baud
 
   // Check for the IMU:
@@ -40,6 +45,10 @@ void setup()
     Serial.println("Please upgrade the firmware");
   }
 
+  // Not connected: green LED off, red LED on:
+  digitalWrite(LEDG, LOW);
+  digitalWrite(LEDR, HIGH);
+
   // Connect to WiFi network:
   while (status != WL_CONNECTED)
   {
@@ -53,6 +62,10 @@ void setup()
 
   server.begin();    // start the web server
   printWifiStatus(); // print out the status
+
+  // Connected: red LED off, green LED on:
+  digitalWrite(LEDR, LOW);
+  digitalWrite(LEDG, HIGH);
 }
 
 void loop()
@@ -61,6 +74,9 @@ void loop()
 
   if (client) // if you get a client,
   {
+    // Client connected: blue LED on:
+    digitalWrite(LEDB, HIGH);
+
     Serial.println("new client"); // print a message out the serial port
 
     String currentLine = ""; // make a String to hold incoming data from the client
@@ -142,6 +158,10 @@ void loop()
         }
       }
     }
+
+    delay(500);
+    // Client disconnected: blue LED off:
+    digitalWrite(LEDB, LOW);
 
     // close the connection:
     client.stop();
