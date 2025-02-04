@@ -1,0 +1,12 @@
+# update these values to match the host name (or ip address) and port of your service
+@root_url = http://nano-rp2040
+@port = 8090
+
+### Invalid GET
+GET {{root_url}}:{{port}}/Not/Real
+
+### Get current temperature, in fahrenheit
+GET {{root_url}}:{{port}}/Temperature/Current/F
+
+### Get current temperature, in celsius
+GET {{root_url}}:{{port}}/Temperature/Current/C
