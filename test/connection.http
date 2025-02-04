@@ -1,0 +1,7 @@
+# update these values to match the host name (or ip address) and port of your service
+@root_url = http://nano-rp2040
+@port = 8090
+
+### Get connection information
+GET {{root_url}}:{{port}}/Connection/Info
+

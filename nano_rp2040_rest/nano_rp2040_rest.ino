@@ -92,6 +92,8 @@ void loop()
           request_name = "Fahrenheit";
         if (currentLine.indexOf("GET /Temperature/Current/C") != -1)
           request_name = "Celsius";
+        if (currentLine.indexOf("GET /Connection/Info") != -1)
+          request_name = "ConnectionInfo";
 
         // If the current temperature was requested:
         if (request_name == "Fahrenheit" || request_name == "Celsius")
@@ -102,6 +104,31 @@ void loop()
           String message = "Current temperature is " + String(current_temperature) + "° " + temp_units;
 
           sendResponse(client, message, current_temperature, "success");
+          break;
+        }
+
+        if (request_name == "ConnectionInfo")
+        {
+          String ssid = WiFi.SSID();
+          IPAddress ip = WiFi.localIP();
+          long rssi = WiFi.RSSI();
+
+          String signalStrength = "Unknown";
+          if (rssi > -50)
+            signalStrength = "Excellent";
+          else if (rssi <= -50 && rssi >= -60)
+            signalStrength = "Good";
+          else if (rssi < -60 && rssi >= -70)
+            signalStrength = "Fair";
+          else if (rssi < -70)
+            signalStrength = "Weak";
+
+          StaticJsonDocument<200> doc;
+          doc["ssid"] = ssid;
+          doc["ipAddress"] = ip;
+          doc["rssi"] = rssi;
+          doc["signalStrength"] = signalStrength;
+          sendResponseDoc(client, doc);
           break;
         }
       }
@@ -130,6 +157,21 @@ void sendResponse(WiFiClient &client, String message, int value, String status)
   doc["message"] = message;
   doc["value"] = value;
   doc["status"] = status;
+
+  // Serialize JSON to client
+  serializeJson(doc, client);
+}
+
+/**
+ * Build a response and send it back to the client.
+ */
+void sendResponseDoc(WiFiClient &client, StaticJsonDocument<200> doc)
+{
+  // Send a standard HTTP response
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-type: application/json");
+  client.println("Connection: close");
+  client.println();
 
   // Serialize JSON to client
   serializeJson(doc, client);
