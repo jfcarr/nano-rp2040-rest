@@ -87,21 +87,19 @@ void loop()
           currentLine += c;
 
         // See if a known endpoint was sent:
-        char request_unit = 'X';
+        String request_name = "Default";
         if (currentLine.indexOf("GET /Temperature/Current/F") != -1)
-          request_unit = 'F';
+          request_name = "Fahrenheit";
         if (currentLine.indexOf("GET /Temperature/Current/C") != -1)
-          request_unit = 'C';
+          request_name = "Celsius";
 
         // If the current temperature was requested:
-        if (request_unit == 'F' || request_unit == 'C')
+        if (request_name == "Fahrenheit" || request_name == "Celsius")
         {
-          int current_temperature = (request_unit == 'F') ? getTemperature(true) : getTemperature(false);
-          char temp_units[5];
-          sprintf(temp_units, "°%s", (request_unit == 'F') ? "F" : "C");
-
-          char message[50];
-          sprintf(message, "Current temperature is %d %s", current_temperature, temp_units);
+          bool is_fahrenheit = (request_name == "Fahrenheit");
+          int current_temperature = getTemperature(is_fahrenheit);
+          String temp_units = is_fahrenheit ? "F" : "C";
+          String message = "Current temperature is " + String(current_temperature) + "° " + temp_units;
 
           sendResponse(client, message, current_temperature, "success");
           break;
@@ -118,7 +116,7 @@ void loop()
 /**
  * Build a response and send it back to the client.
  */
-void sendResponse(WiFiClient &client, char message[], int value, char status[])
+void sendResponse(WiFiClient &client, String message, int value, String status)
 {
   // Send a standard HTTP response
   client.println("HTTP/1.1 200 OK");
