@@ -141,7 +141,7 @@ There are many options for calling the service.  You could use cURL:
 curl --request GET --url http://192.168.0.186:8090/Temperature/Current/F
 ```
 
-If you're using a REST runner that recognizes .http files, you can use test/get_temp.http
+If you're using a REST runner that recognizes .http files, you can use test/temperature.http
 
 You could also use a REST client like Postman or Insomnia.  Since these are simple GET requests, you can even put the URL directly into a web browser.  Regardless of how you call the service, though, you should see a response similar to this:
 
