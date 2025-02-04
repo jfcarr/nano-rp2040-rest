@@ -76,7 +76,12 @@ void loop()
         {
           if (currentLine.length() == 0)
           {
-            sendResponse(client, "Hello from Arduino RP2040! Valid endpoints are /Temperature/Current/F and /Temperature/Current/C", -99, "invalid");
+            StaticJsonDocument<200> doc;
+            doc["message"] = "Hello from Arduino RP2040! Valid endpoints are /Temperature/Current/F, /Temperature/Current/C, and /Connection/Info";
+            doc["value"] = -99;
+            doc["status"] = "invalid";
+
+            sendResponse(client, doc);
             break;
           }
           else
@@ -101,9 +106,13 @@ void loop()
           bool is_fahrenheit = (request_name == "Fahrenheit");
           int current_temperature = getTemperature(is_fahrenheit);
           String temp_units = is_fahrenheit ? "F" : "C";
-          String message = "Current temperature is " + String(current_temperature) + "° " + temp_units;
 
-          sendResponse(client, message, current_temperature, "success");
+          StaticJsonDocument<200> doc;
+          doc["message"] = "Current temperature is " + String(current_temperature) + "° " + temp_units;
+          doc["value"] = current_temperature;
+          doc["status"] = "success";
+
+          sendResponse(client, doc);
           break;
         }
 
@@ -128,7 +137,7 @@ void loop()
           doc["ipAddress"] = ip;
           doc["rssi"] = rssi;
           doc["signalStrength"] = signalStrength;
-          sendResponseDoc(client, doc);
+          sendResponse(client, doc);
           break;
         }
       }
@@ -143,29 +152,7 @@ void loop()
 /**
  * Build a response and send it back to the client.
  */
-void sendResponse(WiFiClient &client, String message, int value, String status)
-{
-  // Send a standard HTTP response
-  client.println("HTTP/1.1 200 OK");
-  client.println("Content-type: application/json");
-  client.println("Connection: close");
-  client.println();
-
-  // Create a JSON object
-  StaticJsonDocument<200> doc;
-
-  doc["message"] = message;
-  doc["value"] = value;
-  doc["status"] = status;
-
-  // Serialize JSON to client
-  serializeJson(doc, client);
-}
-
-/**
- * Build a response and send it back to the client.
- */
-void sendResponseDoc(WiFiClient &client, StaticJsonDocument<200> doc)
+void sendResponse(WiFiClient &client, StaticJsonDocument<200> doc)
 {
   // Send a standard HTTP response
   client.println("HTTP/1.1 200 OK");
