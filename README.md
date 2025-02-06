@@ -1,6 +1,18 @@
 ## Description
 
-Simple REST service for the Arduino Nano RP2040 Connect
+Simple REST service for the Arduino Nano RP2040 Connect.
+
+Endpoint | Description
+-------- | -----------
+/Connection/Info | Information about the network connection.
+/Temperature/Current/F | Current temperature, in Fahrenheit.
+/Temperature/Current/C | Current temperature, in Celsius.
+
+LED | Indicates
+--- | ---------
+RED | Board is initializing and connecting to WiFi.
+GREEN | Board is connected to WiFi, server is started, waiting for clients.
+BLUE | Client is connected.
 
 ## Recommended Toolset
 
