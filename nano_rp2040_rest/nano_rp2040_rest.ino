@@ -50,14 +50,23 @@ void setup()
   digitalWrite(LEDR, HIGH);
 
   // Connect to WiFi network:
-  while (status != WL_CONNECTED)
+  bool isConnected = false;
+  while (!isConnected)
   {
     Serial.print("Attempting to connect to Network named: ");
     Serial.println(ssid); // print the network name (SSID)
 
     status = WiFi.begin(ssid, pass);
 
-    delay(5000); // wait 5 seconds for connection
+    for (int tryConnect = 1; tryConnect <= 5; tryConnect++)
+    {
+      delay(1000);
+      if (status == WL_CONNECTED)
+      {
+        isConnected = true;
+        break;
+      }
+    }
   }
 
   server.begin();    // start the web server
