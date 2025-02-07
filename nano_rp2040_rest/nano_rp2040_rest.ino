@@ -49,23 +49,32 @@ void setup()
   digitalWrite(LEDG, LOW);
   digitalWrite(LEDR, HIGH);
 
-  // Connect to WiFi network:
+  // Prepare to connect to WiFi network:
   bool isConnected = false;
-  while (!isConnected)
+  Serial.print("Attempting to connect to Network named: ");
+  Serial.println(ssid); // print the network name (SSID)
+
+  // Wait up to 8 seconds for a connection:
+  status = WiFi.begin(ssid, pass);
+  for (int tryConnect = 1; tryConnect <= 8; tryConnect++)
   {
-    Serial.print("Attempting to connect to Network named: ");
-    Serial.println(ssid); // print the network name (SSID)
-
-    status = WiFi.begin(ssid, pass);
-
-    for (int tryConnect = 1; tryConnect <= 5; tryConnect++)
+    delay(1000);
+    if (status == WL_CONNECTED)
     {
-      delay(1000);
-      if (status == WL_CONNECTED)
-      {
-        isConnected = true;
-        break;
-      }
+      isConnected = true;
+      break;
+    }
+  }
+
+  // If still not connected, blink the red LED to indicate connection failure:
+  if (status != WL_CONNECTED)
+  {
+    while (true)
+    {
+      digitalWrite(LEDR, HIGH);
+      delay(500);
+      digitalWrite(LEDR, LOW);
+      delay(500);
     }
   }
 

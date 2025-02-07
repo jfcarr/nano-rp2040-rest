@@ -11,6 +11,7 @@ Endpoint | Description
 LED | Indicates
 --- | ---------
 RED | Board is initializing and connecting to WiFi.
+RED (blinking) | Failed to connect to WiFi.
 GREEN | Board is connected to WiFi, server is started, waiting for clients.
 BLUE | Client is connected.
 
