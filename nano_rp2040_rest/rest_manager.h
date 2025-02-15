@@ -28,12 +28,14 @@ public:
     WiFiServer *server;
 
     void set_led_pin_modes();
+    void init_serial_communication(long speed);
     void check_for_imu();
     void check_for_wifi_module();
     void check_firmware();
     void control_rgb_led(RGB_ACTION red_action, RGB_ACTION green_action, RGB_ACTION blue_action);
     void connect_to_wifi();
     void print_wifi_status();
+    void start_web_server();
     void listen_for_client();
     void send_response(StaticJsonDocument<200> doc, WiFiClient &client);
     int get_temperature(bool as_fahrenheit);
@@ -71,6 +73,14 @@ void RestManager::set_led_pin_modes()
     pinMode(LEDR, OUTPUT);
     pinMode(LEDG, OUTPUT);
     pinMode(LEDB, OUTPUT);
+}
+
+/**
+ * Initialize serial communication at the specified speed (baud)
+ */
+void RestManager::init_serial_communication(long speed)
+{
+    Serial.begin(speed);
 }
 
 /**
@@ -139,6 +149,9 @@ void RestManager::control_rgb_led(RGB_ACTION red_action, RGB_ACTION green_action
  */
 void RestManager::connect_to_wifi()
 {
+    // Not connected yet: green LED off, red LED on:
+    control_rgb_led(RGB_ACTION::On, RGB_ACTION::Off, RGB_ACTION::NoChange);
+
     bool is_connected = false;
     Serial.print("Attempting to connect to Network named: ");
     Serial.println(ssid); // print the network name (SSID)
@@ -166,6 +179,9 @@ void RestManager::connect_to_wifi()
             delay(500);
         }
     }
+
+    // Connected: red LED off, green LED on:
+    control_rgb_led(RGB_ACTION::Off, RGB_ACTION::On, RGB_ACTION::NoChange);
 }
 
 /**
@@ -187,6 +203,14 @@ void RestManager::print_wifi_status()
     Serial.print("signal strength (RSSI): ");
     Serial.print(rssi);
     Serial.println(" dBm");
+}
+
+/**
+ * Start the web server, making it available for the client process.
+ */
+void RestManager::start_web_server()
+{
+    server->begin();
 }
 
 /**
