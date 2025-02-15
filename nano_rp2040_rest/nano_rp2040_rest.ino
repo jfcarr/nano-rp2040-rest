@@ -1,28 +1,28 @@
 #include "arduino_secrets.h"
 #include "rest_manager.h"
 
-RestManager restManager(SECRET_SSID, SECRET_PASSWORD, 0, SECRET_PORT, WL_IDLE_STATUS);
+RestManager RM(SECRET_SSID, SECRET_PASSWORD, 0, SECRET_PORT, WL_IDLE_STATUS);
 
 void setup()
 {
-  restManager.set_led_pin_modes();
+  RM.set_led_pin_modes();
 
-  restManager.init_serial_communication(9600);
+  RM.init_serial_communication(9600);
 
-  restManager.check_for_imu();
+  RM.check_for_imu();
 
-  restManager.check_for_wifi_module();
+  RM.check_for_wifi_module();
 
-  restManager.check_firmware();
+  RM.check_firmware();
 
-  restManager.connect_to_wifi();
+  RM.connect_to_wifi();
 
-  restManager.print_wifi_status();
+  RM.print_wifi_status();
 
-  restManager.start_web_server();
+  RM.start_web_server();
 }
 
 void loop()
 {
-  restManager.listen_for_client();
+  RM.listen_for_client();
 }
