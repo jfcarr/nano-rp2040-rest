@@ -7,7 +7,7 @@ void setup()
 {
   restManager.set_led_pin_modes();
 
-  Serial.begin(9600); // initialize serial communication at 9600 baud
+  restManager.init_serial_communication(9600);
 
   restManager.check_for_imu();
 
@@ -15,16 +15,11 @@ void setup()
 
   restManager.check_firmware();
 
-  // Not connected: green LED off, red LED on:
-  restManager.control_rgb_led(RGB_ACTION::On, RGB_ACTION::Off, RGB_ACTION::NoChange);
-
   restManager.connect_to_wifi();
 
-  restManager.server->begin(); // start the web server
   restManager.print_wifi_status();
 
-  // Connected: red LED off, green LED on:
-  restManager.control_rgb_led(RGB_ACTION::Off, RGB_ACTION::On, RGB_ACTION::NoChange);
+  restManager.start_web_server();
 }
 
 void loop()
