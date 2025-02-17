@@ -13,6 +13,15 @@ enum class RGB_ACTION
     NoChange
 };
 
+/**
+ * Request pattern and corresponding request name.
+ */
+struct RequestMapping
+{
+    const char *pattern;
+    const char *name;
+};
+
 class RestManager
 {
 private:
@@ -218,6 +227,12 @@ void RestManager::start_web_server()
  */
 void RestManager::listen_for_client()
 {
+    // Initialize an array of request mappings.
+    RequestMapping mappings[] = {
+        {"GET /Temperature/Current/F", "Fahrenheit"},
+        {"GET /Temperature/Current/C", "Celsius"},
+        {"GET /Connection/Info", "ConnectionInfo"}};
+
     WiFiClient client = server->available(); // listen for incoming clients
 
     if (client) // if you get a client,
@@ -255,14 +270,20 @@ void RestManager::listen_for_client()
                     // if you got anything else but a carriage return character, add it to the end of the currentLine:
                     currentLine += c;
 
-                // See if a known endpoint was sent:
+                const int numMappings = sizeof(mappings) / sizeof(mappings[0]);
+
+                // Default request name in case no pattern matches:
                 String request_name = "Default";
-                if (currentLine.indexOf("GET /Temperature/Current/F") != -1)
-                    request_name = "Fahrenheit";
-                if (currentLine.indexOf("GET /Temperature/Current/C") != -1)
-                    request_name = "Celsius";
-                if (currentLine.indexOf("GET /Connection/Info") != -1)
-                    request_name = "ConnectionInfo";
+
+                // See if a known endpoint was sent:
+                for (int i = 0; i < numMappings; i++)
+                {
+                    if (currentLine.indexOf(mappings[i].pattern) != -1)
+                    {
+                        request_name = mappings[i].name;
+                        break;
+                    }
+                }
 
                 // If the current temperature was requested:
                 if (request_name == "Fahrenheit" || request_name == "Celsius")
