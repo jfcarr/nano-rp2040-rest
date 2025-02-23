@@ -4,6 +4,7 @@ Simple REST service for the Arduino Nano RP2040 Connect.
 
 Endpoint | Description
 -------- | -----------
+/Accelerometer | Current x,y,z values for accelerometer, where x = left and right motion, y = forward and back motion, and z = up and down motion.
 /Connection/Info | Information about the network connection.
 /Temperature/Current/F | Current temperature, in Fahrenheit.
 /Temperature/Current/C | Current temperature, in Celsius.
