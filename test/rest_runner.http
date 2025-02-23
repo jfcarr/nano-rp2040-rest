@@ -5,6 +5,9 @@
 ### Invalid GET
 GET {{root_url}}:{{port}}/Not/Real
 
+### Get connection information
+GET {{root_url}}:{{port}}/Connection/Info
+
 ### Get current temperature, in fahrenheit
 GET {{root_url}}:{{port}}/Temperature/Current/F
 
