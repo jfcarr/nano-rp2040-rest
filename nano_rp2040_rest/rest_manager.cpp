@@ -204,7 +204,7 @@ void RestManager::listen_for_client()
                     if (currentLine.length() == 0)
                     {
                         StaticJsonDocument<200> doc;
-                        doc["message"] = "Hello from Arduino RP2040! Valid endpoints are /Temperature/Current/F, /Temperature/Current/C, and /Connection/Info";
+                        doc["message"] = "Hello from Arduino RP2040! Valid endpoints are /Accelerometer, /Connection/Info, /Temperature/Current/F, and /Temperature/Current/C";
                         doc["value"] = -99;
                         doc["status"] = "invalid";
 
@@ -286,9 +286,10 @@ String RestManager::determine_called_endpoint(String current_line)
 {
     // Initialize array of request mappings.
     RequestMapping mappings[] = {
+        {"GET /Accelerometer", "Accelerometer"},
+        {"GET /Connection/Info", "ConnectionInfo"},
         {"GET /Temperature/Current/F", "Fahrenheit"},
-        {"GET /Temperature/Current/C", "Celsius"},
-        {"GET /Connection/Info", "ConnectionInfo"}};
+        {"GET /Temperature/Current/C", "Celsius"}};
 
     const int num_mappings = sizeof(mappings) / sizeof(mappings[0]);
 
@@ -310,6 +311,26 @@ String RestManager::determine_called_endpoint(String current_line)
 
 bool RestManager::handle_valid_endpoint(String request_name, WiFiClient client)
 {
+    // Accelerometer values
+    if (request_name == "Accelerometer")
+    {
+        float ax = -99, ay = -99, az = -99;
+
+        if (IMU.accelerationAvailable())
+        {
+            IMU.readAcceleration(ax, ay, az);
+        }
+
+        StaticJsonDocument<200> doc;
+        doc["aX"] = ax;
+        doc["aY"] = ay;
+        doc["aZ"] = az;
+
+        send_response(doc, client);
+
+        return true;
+    }
+
     // Current temperature:
     if (request_name == "Fahrenheit" || request_name == "Celsius")
     {

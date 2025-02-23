@@ -5,6 +5,9 @@
 ### Invalid GET
 GET {{root_url}}:{{port}}/Not/Real
 
+### Get Accelerometer values
+GET {{root_url}}:{{port}}/Accelerometer
+
 ### Get connection information
 GET {{root_url}}:{{port}}/Connection/Info
 
