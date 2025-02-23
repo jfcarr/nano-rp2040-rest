@@ -26,6 +26,9 @@ struct RequestMapping
 class RestManager
 {
 private:
+    String determine_called_endpoint(String current_line);
+    bool handle_valid_endpoint(String request_name, WiFiClient client);
+
 public:
     RestManager(const char *new_ssid, const char *new_password, int new_key_index, int new_port, int new_status);
     ~RestManager();

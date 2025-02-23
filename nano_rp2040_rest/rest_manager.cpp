@@ -181,12 +181,6 @@ void RestManager::start_web_server()
  */
 void RestManager::listen_for_client()
 {
-    // Initialize an array of request mappings.
-    RequestMapping mappings[] = {
-        {"GET /Temperature/Current/F", "Fahrenheit"},
-        {"GET /Temperature/Current/C", "Celsius"},
-        {"GET /Connection/Info", "ConnectionInfo"}};
-
     WiFiClient client = server->available(); // listen for incoming clients
 
     if (client) // if you get a client,
@@ -224,61 +218,10 @@ void RestManager::listen_for_client()
                     // if you got anything else but a carriage return character, add it to the end of the currentLine:
                     currentLine += c;
 
-                const int numMappings = sizeof(mappings) / sizeof(mappings[0]);
+                String request_name = determine_called_endpoint(currentLine);
 
-                // Default request name in case no pattern matches:
-                String request_name = "Default";
-
-                // See if a known endpoint was sent:
-                for (int i = 0; i < numMappings; i++)
-                {
-                    if (currentLine.indexOf(mappings[i].pattern) != -1)
-                    {
-                        request_name = mappings[i].name;
-                        break;
-                    }
-                }
-
-                // If the current temperature was requested:
-                if (request_name == "Fahrenheit" || request_name == "Celsius")
-                {
-                    bool is_fahrenheit = (request_name == "Fahrenheit");
-                    int current_temperature = get_temperature(is_fahrenheit);
-                    String temp_units = is_fahrenheit ? "F" : "C";
-
-                    StaticJsonDocument<200> doc;
-                    doc["message"] = "Current temperature is " + String(current_temperature) + "° " + temp_units;
-                    doc["value"] = current_temperature;
-                    doc["status"] = "success";
-
-                    send_response(doc, client);
+                if (handle_valid_endpoint(request_name, client))
                     break;
-                }
-
-                if (request_name == "ConnectionInfo")
-                {
-                    String ssid = WiFi.SSID();
-                    IPAddress ip = WiFi.localIP();
-                    long rssi = WiFi.RSSI();
-
-                    String signalStrength = "Unknown";
-                    if (rssi > -50)
-                        signalStrength = "Excellent";
-                    else if (rssi <= -50 && rssi >= -60)
-                        signalStrength = "Good";
-                    else if (rssi < -60 && rssi >= -70)
-                        signalStrength = "Fair";
-                    else if (rssi < -70)
-                        signalStrength = "Weak";
-
-                    StaticJsonDocument<200> doc;
-                    doc["ssid"] = ssid;
-                    doc["ipAddress"] = ip;
-                    doc["rssi"] = rssi;
-                    doc["signalStrength"] = signalStrength;
-                    send_response(doc, client);
-                    break;
-                }
             }
         }
 
@@ -334,4 +277,82 @@ int RestManager::get_temperature(bool as_fahrenheit)
 int RestManager::celsius_to_fahrenheit(int celsius_value)
 {
     return (celsius_value * (9 / 5)) + 32;
+}
+
+/**
+ * Scan currentline to determine which endpoint was called.
+ */
+String RestManager::determine_called_endpoint(String current_line)
+{
+    // Initialize array of request mappings.
+    RequestMapping mappings[] = {
+        {"GET /Temperature/Current/F", "Fahrenheit"},
+        {"GET /Temperature/Current/C", "Celsius"},
+        {"GET /Connection/Info", "ConnectionInfo"}};
+
+    const int num_mappings = sizeof(mappings) / sizeof(mappings[0]);
+
+    // Default request name in case no pattern matches:
+    String request_name = "Default";
+
+    // See if a known endpoint was sent:
+    for (int i = 0; i < num_mappings; i++)
+    {
+        if (current_line.indexOf(mappings[i].pattern) != -1)
+        {
+            request_name = mappings[i].name;
+            break;
+        }
+    }
+
+    return request_name;
+}
+
+bool RestManager::handle_valid_endpoint(String request_name, WiFiClient client)
+{
+    // Current temperature:
+    if (request_name == "Fahrenheit" || request_name == "Celsius")
+    {
+        bool is_fahrenheit = (request_name == "Fahrenheit");
+        int current_temperature = get_temperature(is_fahrenheit);
+        String temp_units = is_fahrenheit ? "F" : "C";
+
+        StaticJsonDocument<200> doc;
+        doc["message"] = "Current temperature is " + String(current_temperature) + "° " + temp_units;
+        doc["value"] = current_temperature;
+        doc["status"] = "success";
+
+        send_response(doc, client);
+
+        return true;
+    }
+
+    // Connection information:
+    if (request_name == "ConnectionInfo")
+    {
+        String ssid = WiFi.SSID();
+        IPAddress ip = WiFi.localIP();
+        long rssi = WiFi.RSSI();
+
+        String signalStrength = "Unknown";
+        if (rssi > -50)
+            signalStrength = "Excellent";
+        else if (rssi <= -50 && rssi >= -60)
+            signalStrength = "Good";
+        else if (rssi < -60 && rssi >= -70)
+            signalStrength = "Fair";
+        else if (rssi < -70)
+            signalStrength = "Weak";
+
+        StaticJsonDocument<200> doc;
+        doc["ssid"] = ssid;
+        doc["ipAddress"] = ip;
+        doc["rssi"] = rssi;
+        doc["signalStrength"] = signalStrength;
+        send_response(doc, client);
+
+        return true;
+    }
+
+    return false;
 }
