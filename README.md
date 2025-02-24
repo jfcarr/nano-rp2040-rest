@@ -6,6 +6,7 @@ Endpoint | Description
 -------- | -----------
 /Accelerometer | Current x,y,z values for accelerometer, where x = left and right motion, y = forward and back motion, and z = up and down motion.
 /Connection/Info | Information about the network connection.
+/Gyroscope | Current x,y,z axis values for gyroscope.
 /Temperature/Current/F | Current temperature, in Fahrenheit.
 /Temperature/Current/C | Current temperature, in Celsius.
 

@@ -8,6 +8,9 @@ GET {{root_url}}:{{port}}/Not/Real
 ### Get Accelerometer values
 GET {{root_url}}:{{port}}/Accelerometer
 
+### Get Gyroscope values
+GET {{root_url}}:{{port}}/Gyroscope
+
 ### Get connection information
 GET {{root_url}}:{{port}}/Connection/Info
 
