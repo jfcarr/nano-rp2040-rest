@@ -204,7 +204,7 @@ void RestManager::listen_for_client()
                     if (currentLine.length() == 0)
                     {
                         StaticJsonDocument<200> doc;
-                        doc["message"] = "Hello from Arduino RP2040! Valid endpoints are /Accelerometer, /Connection/Info, /Temperature/Current/F, and /Temperature/Current/C";
+                        doc["message"] = "Hello from Arduino RP2040! Valid endpoints are /Accelerometer, /Connection/Info, /Gyroscope, /Temperature/Current/F, and /Temperature/Current/C";
                         doc["value"] = -99;
                         doc["status"] = "invalid";
 
@@ -288,6 +288,7 @@ String RestManager::determine_called_endpoint(String current_line)
     RequestMapping mappings[] = {
         {"GET /Accelerometer", "Accelerometer"},
         {"GET /Connection/Info", "ConnectionInfo"},
+        {"GET /Gyroscope", "Gyroscope"},
         {"GET /Temperature/Current/F", "Fahrenheit"},
         {"GET /Temperature/Current/C", "Celsius"}};
 
@@ -325,6 +326,26 @@ bool RestManager::handle_valid_endpoint(String request_name, WiFiClient client)
         doc["aX"] = ax;
         doc["aY"] = ay;
         doc["aZ"] = az;
+
+        send_response(doc, client);
+
+        return true;
+    }
+
+    // Gyroscope values
+    if (request_name == "Gyroscope")
+    {
+        float gx = -99, gy = -99, gz = -99;
+
+        if (IMU.gyroscopeAvailable())
+        {
+            IMU.readGyroscope(gx, gy, gz);
+        }
+
+        StaticJsonDocument<200> doc;
+        doc["gX"] = gx;
+        doc["gY"] = gy;
+        doc["gZ"] = gz;
 
         send_response(doc, client);
 
